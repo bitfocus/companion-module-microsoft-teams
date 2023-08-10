@@ -1,0 +1,6 @@
+.DS_Store
+node_modules
+pkg
+pkg.tgz
+DEBUG-PACKED
+yarn.lock
