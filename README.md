@@ -1,3 +1,3 @@
-# companion-module-teams-websocket
+# companion-module-microsoft-teams
 
 See HELP.md and LICENSE
