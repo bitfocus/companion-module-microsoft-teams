@@ -1,12 +1,11 @@
-import { InstanceBase, runEntrypoint, InstanceStatus, combineRgb} from '@companion-module/base'
+import { InstanceBase, runEntrypoint, InstanceStatus, combineRgb } from '@companion-module/base'
 import WebSocket from 'ws'
 import { upgradeScripts } from './upgrade.js'
-import {Regex} from '@companion-module/base'
+import { Regex } from '@companion-module/base'
 
 
 class WebsocketInstance extends InstanceBase {
 	isInitialized = false
-
 
 	async init(config) {
 		this.config = config
@@ -77,7 +76,7 @@ class WebsocketInstance extends InstanceBase {
 			this.ws.send('{"apiVersion":"1.0.0","service":"query-meeting-state","action":"query-meeting-state","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675341655453}');
 		})
 		this.ws.on('close', (code) => {
-			if(code == 1006) {
+			if (code == 1006) {
 				this.updateStatus(InstanceStatus.Disconnected, `Invalid API token or Teams not running`)
 			}
 			else {
@@ -89,7 +88,7 @@ class WebsocketInstance extends InstanceBase {
 		this.ws.on('message', this.messageReceivedFromWebSocket.bind(this))
 
 		this.ws.on('error', (data) => {
-			if(data == "Error: Unexpected server response: 403") {
+			if (data == "Error: Unexpected server response: 403") {
 				this.updateStatus(InstanceStatus.Disconnected, 'Invalid API token or Teams not running')
 			}
 			else {
@@ -115,10 +114,9 @@ class WebsocketInstance extends InstanceBase {
 		} catch (e) {
 			msgValue = data
 		}
-		if(msgValue.meetingUpdate != null) {
+		if (msgValue.meetingUpdate != null) {
 			this.parseTeamsStatus(msgValue);
 		}
-		
 	}
 
 	getConfigFields() {
@@ -172,7 +170,7 @@ class WebsocketInstance extends InstanceBase {
 					}
 				],
 				callback: (feedback, context) => {
-					if(feedback.options.invertFeedback) return !this.isMuted;
+					if (feedback.options.invertFeedback) return !this.isMuted;
 					return this.isMuted;
 				}
 			},
@@ -189,7 +187,7 @@ class WebsocketInstance extends InstanceBase {
 					}
 				],
 				callback: (feedback, context) => {
-					if(feedback.options.invertFeedback) return !this.inMeeting;
+					if (feedback.options.invertFeedback) return !this.inMeeting;
 					return this.inMeeting;
 				}
 			},
@@ -206,7 +204,7 @@ class WebsocketInstance extends InstanceBase {
 					}
 				],
 				callback: (feedback, context) => {
-					if(feedback.options.invertFeedback) return !this.isHandRaised;
+					if (feedback.options.invertFeedback) return !this.isHandRaised;
 					return this.isHandRaised;
 				}
 			},
@@ -223,7 +221,7 @@ class WebsocketInstance extends InstanceBase {
 					}
 				],
 				callback: (feedback, context) => {
-					if(feedback.options.invertFeedback) return !this.isCameraOn;
+					if (feedback.options.invertFeedback) return !this.isCameraOn;
 					return this.isCameraOn;
 				}
 			},
@@ -240,7 +238,7 @@ class WebsocketInstance extends InstanceBase {
 					}
 				],
 				callback: (feedback, context) => {
-					if(feedback.options.invertFeedback) return !this.isBackgroundBlurred;
+					if (feedback.options.invertFeedback) return !this.isBackgroundBlurred;
 					return this.isBackgroundBlurred;
 				}
 			},
@@ -308,14 +306,14 @@ class WebsocketInstance extends InstanceBase {
 					},
 				],
 				callback: async (action, context) => {
-					switch(action.options.selectedReaction) {
+					switch (action.options.selectedReaction) {
 						case 0: this.ws.send('{"apiVersion":"1.0.0","service":"call","action":"react-applause","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342118850}'); break;
 						case 1: this.ws.send('{"apiVersion":"1.0.0","service":"call","action":"react-laugh","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342118850}'); break;
 						case 2: this.ws.send('{"apiVersion":"1.0.0","service":"call","action":"react-like","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342118850}'); break;
 						case 3: this.ws.send('{"apiVersion":"1.0.0","service":"call","action":"react-love","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342118850}'); break;
 						case 4: this.ws.send('{"apiVersion":"1.0.0","service":"call","action":"react-wow","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342118850}'); break;
 					}
-					
+
 				},
 			},
 		})
