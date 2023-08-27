@@ -161,16 +161,8 @@ class WebsocketInstance extends InstanceBase {
 				type: 'boolean',
 				name: 'Is muted',
 				description: 'True when the microphone is muted, false when it is not.',
-				options: [
-					{
-						type: 'checkbox',
-						label: 'Invert',
-						id: 'invertFeedback',
-						default: false
-					}
-				],
+				options: [],
 				callback: (feedback, context) => {
-					if (feedback.options.invertFeedback) return !this.isMuted;
 					return this.isMuted;
 				}
 			},
@@ -178,16 +170,8 @@ class WebsocketInstance extends InstanceBase {
 				type: 'boolean',
 				name: 'In meeting',
 				description: 'True when the user is currently in a meeting, false when he is not.',
-				options: [
-					{
-						type: 'checkbox',
-						label: 'Invert',
-						id: 'invertFeedback',
-						default: false
-					}
-				],
+				options: [],
 				callback: (feedback, context) => {
-					if (feedback.options.invertFeedback) return !this.inMeeting;
 					return this.inMeeting;
 				}
 			},
@@ -195,16 +179,8 @@ class WebsocketInstance extends InstanceBase {
 				type: 'boolean',
 				name: 'Hand raised',
 				description: 'True when the hand is raised in a call, false when it is not.',
-				options: [
-					{
-						type: 'checkbox',
-						label: 'Invert',
-						id: 'invertFeedback',
-						default: false
-					}
-				],
+				options: [],
 				callback: (feedback, context) => {
-					if (feedback.options.invertFeedback) return !this.isHandRaised;
 					return this.isHandRaised;
 				}
 			},
@@ -212,16 +188,8 @@ class WebsocketInstance extends InstanceBase {
 				type: 'boolean',
 				name: 'Camera on',
 				description: 'True when the camera is on, false when it is not.',
-				options: [
-					{
-						type: 'checkbox',
-						label: 'Invert',
-						id: 'invertFeedback',
-						default: false
-					}
-				],
+				options: [],
 				callback: (feedback, context) => {
-					if (feedback.options.invertFeedback) return !this.isCameraOn;
 					return this.isCameraOn;
 				}
 			},
@@ -229,16 +197,8 @@ class WebsocketInstance extends InstanceBase {
 				type: 'boolean',
 				name: 'Background blurred',
 				description: 'True when the background blur is active, false when it is not.',
-				options: [
-					{
-						type: 'checkbox',
-						label: 'Invert',
-						id: 'invertFeedback',
-						default: false
-					}
-				],
+				options: [],
 				callback: (feedback, context) => {
-					if (feedback.options.invertFeedback) return !this.isBackgroundBlurred;
 					return this.isBackgroundBlurred;
 				}
 			},

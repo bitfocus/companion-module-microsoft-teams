@@ -3,7 +3,7 @@
 	"name": "microsoft-teams",
 	"shortname": "teams",
 	"description": "Module for controlling the Microsoft Teams desktop application",
-	"version": "0.0.0",
+	"version": "1.0.1",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-microsoft-teams.git",
 	"bugs": "https://github.com/bitfocus/companion-module-microsoft-teams/issues",
