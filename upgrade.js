@@ -1,6 +1,6 @@
 export const upgradeScripts = [
     function removeOldInvertFeedbackScripts(context, props) {
-        var result;
+        var result = {};
         for (const feedback of props.feedbacks) {
             if (feedback.options['invertFeedback'] !== undefined) {
                 feedback.isInverted = !!feedback.options['invertFeedback']
