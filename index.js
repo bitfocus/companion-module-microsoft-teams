@@ -161,16 +161,8 @@ class WebsocketInstance extends InstanceBase {
 				type: 'boolean',
 				name: 'Is muted',
 				description: 'True when the microphone is muted, false when it is not.',
-				options: [
-					{
-						type: 'checkbox',
-						label: 'Invert',
-						id: 'invertFeedback',
-						default: false
-					}
-				],
+				options: [],
 				callback: (feedback, context) => {
-					if (feedback.options.invertFeedback) return !this.isMuted;
 					return this.isMuted;
 				}
 			},
@@ -178,16 +170,8 @@ class WebsocketInstance extends InstanceBase {
 				type: 'boolean',
 				name: 'In meeting',
 				description: 'True when the user is currently in a meeting, false when he is not.',
-				options: [
-					{
-						type: 'checkbox',
-						label: 'Invert',
-						id: 'invertFeedback',
-						default: false
-					}
-				],
+				options: [],
 				callback: (feedback, context) => {
-					if (feedback.options.invertFeedback) return !this.inMeeting;
 					return this.inMeeting;
 				}
 			},
@@ -195,16 +179,8 @@ class WebsocketInstance extends InstanceBase {
 				type: 'boolean',
 				name: 'Hand raised',
 				description: 'True when the hand is raised in a call, false when it is not.',
-				options: [
-					{
-						type: 'checkbox',
-						label: 'Invert',
-						id: 'invertFeedback',
-						default: false
-					}
-				],
+				options: [],
 				callback: (feedback, context) => {
-					if (feedback.options.invertFeedback) return !this.isHandRaised;
 					return this.isHandRaised;
 				}
 			},
@@ -212,16 +188,8 @@ class WebsocketInstance extends InstanceBase {
 				type: 'boolean',
 				name: 'Camera on',
 				description: 'True when the camera is on, false when it is not.',
-				options: [
-					{
-						type: 'checkbox',
-						label: 'Invert',
-						id: 'invertFeedback',
-						default: false
-					}
-				],
+				options: [],
 				callback: (feedback, context) => {
-					if (feedback.options.invertFeedback) return !this.isCameraOn;
 					return this.isCameraOn;
 				}
 			},
@@ -229,16 +197,8 @@ class WebsocketInstance extends InstanceBase {
 				type: 'boolean',
 				name: 'Background blurred',
 				description: 'True when the background blur is active, false when it is not.',
-				options: [
-					{
-						type: 'checkbox',
-						label: 'Invert',
-						id: 'invertFeedback',
-						default: false
-					}
-				],
+				options: [],
 				callback: (feedback, context) => {
-					if (feedback.options.invertFeedback) return !this.isBackgroundBlurred;
 					return this.isBackgroundBlurred;
 				}
 			},
@@ -252,7 +212,16 @@ class WebsocketInstance extends InstanceBase {
 				description: "Enable/Disable the microphone",
 				options: [],
 				callback: async (action, context) => {
-					this.ws.send('{"apiVersion":"1.0.0","service":"toggle-mute","action":"toggle-mute","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675341775725}');
+					this.ws.send(
+						JSON.stringify({
+							apiVersion: "1.0.0",
+							service: "toggle-mute",
+							action: "toggle-mute",
+							manufacturer: "Elgato",
+							device: "StreamDeck",
+							timestamp: Date.now()
+						})
+					)
 				},
 			},
 			toggleVideo: {
@@ -260,7 +229,16 @@ class WebsocketInstance extends InstanceBase {
 				description: "Enable/Disable the camera",
 				options: [],
 				callback: async (action, context) => {
-					this.ws.send('{"apiVersion":"1.0.0","service":"toggle-video","action":"toggle-video","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675341791249}');
+					this.ws.send(
+						JSON.stringify({
+							apiVersion: "1.0.0",
+							service: "toggle-video",
+							action: "toggle-video",
+							manufacturer: "Elgato",
+							device: "StreamDeck",
+							timestamp: Date.now()
+						})
+					)
 				},
 			},
 			leaveMeeting: {
@@ -268,7 +246,16 @@ class WebsocketInstance extends InstanceBase {
 				description: "Leave the current meeting",
 				options: [],
 				callback: async (action, context) => {
-					this.ws.send('{"apiVersion":"1.0.0","service":"call","action":"leave-call","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675341849778}');
+					this.ws.send(
+						JSON.stringify({
+							apiVersion: "1.0.0",
+							service: "call",
+							action: "leave-call",
+							manufacturer: "Elgato",
+							device: "StreamDeck",
+							timestamp: Date.now()
+						})
+					)
 				},
 			},
 			toggleBackgroundBlur: {
@@ -276,7 +263,16 @@ class WebsocketInstance extends InstanceBase {
 				description: "Enable/Disable the backgroud blur effect",
 				options: [],
 				callback: async (action, context) => {
-					this.ws.send('{"apiVersion":"1.0.0","service":"background-blur","action":"toggle-background-blur","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342066974}');
+					this.ws.send(
+						JSON.stringify({
+							apiVersion: "1.0.0",
+							service: "background-blur",
+							action: "toggle-background-blur",
+							manufacturer: "Elgato",
+							device: "StreamDeck",
+							timestamp: Date.now()
+						})
+					)
 				},
 			},
 			toggleHand: {
@@ -284,7 +280,16 @@ class WebsocketInstance extends InstanceBase {
 				description: "Raise/Unraise the hand in an active call",
 				options: [],
 				callback: async (action, context) => {
-					this.ws.send('{"apiVersion":"1.0.0","service":"raise-hand","action":"toggle-hand","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342096987}');
+					this.ws.send(
+						JSON.stringify({
+							apiVersion: "1.0.0",
+							service: "raise-hand",
+							action: "toggle-hand",
+							manufacturer: "Elgato",
+							device: "StreamDeck",
+							timestamp: Date.now()
+						})
+					)
 				},
 			},
 			reaction: {
@@ -306,14 +311,22 @@ class WebsocketInstance extends InstanceBase {
 					},
 				],
 				callback: async (action, context) => {
+					var message = {
+						apiVersion: "1.0.0",
+						service: "call",
+						manufacturer: "Elgato",
+						device: "StreamDeck",
+						timestamp: Date.now()
+					}
 					switch (action.options.selectedReaction) {
-						case 0: this.ws.send('{"apiVersion":"1.0.0","service":"call","action":"react-applause","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342118850}'); break;
-						case 1: this.ws.send('{"apiVersion":"1.0.0","service":"call","action":"react-laugh","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342118850}'); break;
-						case 2: this.ws.send('{"apiVersion":"1.0.0","service":"call","action":"react-like","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342118850}'); break;
-						case 3: this.ws.send('{"apiVersion":"1.0.0","service":"call","action":"react-love","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342118850}'); break;
-						case 4: this.ws.send('{"apiVersion":"1.0.0","service":"call","action":"react-wow","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675342118850}'); break;
+						case 0: message.action = "react-applause"; break;
+						case 1: message.action = "react-laugh"; break;
+						case 2: message.action = "react-like"; break;
+						case 3: message.action = "react-love"; break;
+						case 4: message.action = "react-wow"; break;
 					}
 
+					this.ws.send(JSON.stringify(message));
 				},
 			},
 		})
