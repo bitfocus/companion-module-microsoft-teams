@@ -1,4 +1,4 @@
-import { InstanceBase, runEntrypoint, InstanceStatus, combineRgb, } from '@companion-module/base'
+import { InstanceBase, runEntrypoint, InstanceStatus, combineRgb } from '@companion-module/base'
 import WebSocket from 'ws'
 import { upgradeScripts } from './upgrade.js'
 import { setupActions } from './actions.js'

@@ -1,7 +1,7 @@
 {
-	"id": "microsoft-teams-dev",
-	"name": "microsoft-teams-dev",
-	"shortname": "teams-dev",
+	"id": "microsoft-teams",
+	"name": "microsoft-teams",
+	"shortname": "teams",
 	"description": "Module for controlling the Microsoft Teams desktop application",
 	"version": "1.0.2",
 	"license": "MIT",
@@ -11,6 +11,10 @@
 		{
 			"name": "Leon Reucher",
 			"email": "leon.reucher@ultimate-technology.de"
+		},
+		{
+			"name": "Shaun Padt"
+			"email": "sfpadt@gmail.com"
 		}
 	],
 	"legacyIds": [],
@@ -21,6 +25,6 @@
 		"entrypoint": "../index.js"
 	},
 	"manufacturer": "Microsoft",
-	"products": ["Teams-dev"],
+	"products": ["Teams"],
 	"keywords": ["Teams", "MS Teams", "Microsoft"]
 }
