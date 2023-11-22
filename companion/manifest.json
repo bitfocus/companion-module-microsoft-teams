@@ -1,9 +1,9 @@
 {
-	"id": "microsoft-teams",
-	"name": "microsoft-teams",
-	"shortname": "teams",
+	"id": "microsoft-teams-dev",
+	"name": "microsoft-teams-dev",
+	"shortname": "teams-dev",
 	"description": "Module for controlling the Microsoft Teams desktop application",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-microsoft-teams.git",
 	"bugs": "https://github.com/bitfocus/companion-module-microsoft-teams/issues",
@@ -21,6 +21,6 @@
 		"entrypoint": "../index.js"
 	},
 	"manufacturer": "Microsoft",
-	"products": ["Teams"],
+	"products": ["Teams-dev"],
 	"keywords": ["Teams", "MS Teams", "Microsoft"]
 }

@@ -1,6 +1,6 @@
 {
-	"name": "microsoft-teams",
-	"version": "1.0.1",
+	"name": "microsoft-teams-dev",
+	"version": "1.0.2",
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
