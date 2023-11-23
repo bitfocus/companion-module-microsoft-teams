@@ -7,12 +7,9 @@ export function setupActions(instance) {
             callback: async (action, context) => {
                 instance.ws.send(
                     JSON.stringify({
-                        apiVersion: "1.0.0",
-                        service: "toggle-mute",
                         action: "toggle-mute",
-                        manufacturer: "Elgato",
-                        device: "StreamDeck",
-                        timestamp: Date.now()
+                        parameters: {},
+                        requestId: 1
                     })
                 )
             },
@@ -24,12 +21,9 @@ export function setupActions(instance) {
             callback: async (action, context) => {
                 instance.ws.send(
                     JSON.stringify({
-                        apiVersion: "1.0.0",
-                        service: "toggle-video",
                         action: "toggle-video",
-                        manufacturer: "Elgato",
-                        device: "StreamDeck",
-                        timestamp: Date.now()
+                        parameters: {},
+                        requestId: 1
                     })
                 )
             },
@@ -41,12 +35,9 @@ export function setupActions(instance) {
             callback: async (action, context) => {
                 instance.ws.send(
                     JSON.stringify({
-                        apiVersion: "1.0.0",
-                        service: "call",
                         action: "leave-call",
-                        manufacturer: "Elgato",
-                        device: "StreamDeck",
-                        timestamp: Date.now()
+                        parameters: {},
+                        requestId: 2
                     })
                 )
             },
@@ -58,12 +49,9 @@ export function setupActions(instance) {
             callback: async (action, context) => {
                 instance.ws.send(
                     JSON.stringify({
-                        apiVersion: "1.0.0",
-                        service: "background-blur",
                         action: "toggle-background-blur",
-                        manufacturer: "Elgato",
-                        device: "StreamDeck",
-                        timestamp: Date.now()
+                        parameters: {},
+                        requestId: 1
                     })
                 )
             },
@@ -75,12 +63,9 @@ export function setupActions(instance) {
             callback: async (action, context) => {
                 instance.ws.send(
                     JSON.stringify({
-                        apiVersion: "1.0.0",
-                        service: "raise-hand",
                         action: "toggle-hand",
-                        manufacturer: "Elgato",
-                        device: "StreamDeck",
-                        timestamp: Date.now()
+                        parameters: {},
+                        requestId: 1
                     })
                 )
             },
@@ -105,18 +90,16 @@ export function setupActions(instance) {
             ],
             callback: async (action, context) => {
                 var message = {
-                    apiVersion: "1.0.0",
-                    service: "call",
-                    manufacturer: "Elgato",
-                    device: "StreamDeck",
-                    timestamp: Date.now()
+                    action: "send-reaction",
+                    parameters: {},
+                    requestId: 1
                 }
                 switch (action.options.selectedReaction) {
-                    case 0: message.action = "react-applause"; break;
-                    case 1: message.action = "react-laugh"; break;
-                    case 2: message.action = "react-like"; break;
-                    case 3: message.action = "react-love"; break;
-                    case 4: message.action = "react-wow"; break;
+                    case 0: message.parameters.type = "applause"; break;
+                    case 1: message.parameters.type = "laugh"; break;
+                    case 2: message.parameters.type = "like"; break;
+                    case 3: message.parameters.type = "love"; break;
+                    case 4: message.parameters.type = "wow"; break;
                 }
 
                 instance.ws.send(JSON.stringify(message));
