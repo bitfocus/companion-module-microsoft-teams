@@ -4,6 +4,8 @@ See HELP.md and LICENSE
 
 The main code is inherited from the companion-module-generic-websocket and then customized for the Microsoft Teams websocket API.
 
+![Button Presets](/buttons_example.png)
+
 Updated for Teams API 2.0.0.
 Special thanks to svrooij's update of the API:
 https://github.com/svrooij/teams-monitor

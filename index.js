@@ -9,6 +9,7 @@ import { parseStatus as parseStatusV2 } from './api/v2.0.0/messages.js'
 import { initWebSocketHandle as initWebSocketHandleV1 } from './api/v1.0.0/messages.js'
 import { initWebSocketHandle as initWebSocketHandleV2 } from './api/v2.0.0/messages.js'
 import { configFields } from './config.js'
+import { getPresetDefinitions } from './presets.js'
 
 
 
@@ -47,6 +48,7 @@ class WebsocketInstance extends InstanceBase {
 
 		this.initActions()
 		this.initFeedbacks()
+		this.initPresets()
 	}
 
 	async destroy() {
@@ -131,6 +133,12 @@ class WebsocketInstance extends InstanceBase {
 			setupActionsV1(this);
 		} else if (this.config.apiVersion === '2.0.0') {
 			setupActionsV2(this);
+		}
+	}
+
+	initPresets() {
+		if (this.config.apiVersion === '2.0.0') {
+			this.setPresetDefinitions(getPresetDefinitions(this))
 		}
 	}
 }
