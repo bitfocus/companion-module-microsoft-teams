@@ -1,9 +1,16 @@
-import { InstanceBase, runEntrypoint, InstanceStatus, combineRgb } from '@companion-module/base'
-import WebSocket from 'ws'
+import { InstanceBase, runEntrypoint } from '@companion-module/base'
 import { upgradeScripts } from './upgrade.js'
-import { setupActions } from './actions.js'
-import { setupFeedbacks } from './feedbacks.js'
+import { setupActions as setupActionsV1 } from './api/v1.0.0/actions.js'
+import { setupActions as setupActionsV2 } from './api/v2.0.0/actions.js'
+import { setupFeedbacks as setupFeedbacksV1 } from './api/v1.0.0/feedbacks.js'
+import { setupFeedbacks as setupFeedbacksV2 } from './api/v2.0.0/feedbacks.js'
+import { parseStatus as parseStatusV1 } from './api/v1.0.0/messages.js'
+import { parseStatus as parseStatusV2 } from './api/v2.0.0/messages.js'
+import { initWebSocketHandle as initWebSocketHandleV1 } from './api/v1.0.0/messages.js'
+import { initWebSocketHandle as initWebSocketHandleV2 } from './api/v2.0.0/messages.js'
 import { configFields } from './config.js'
+import { getPresetDefinitions } from './presets.js'
+
 
 
 class WebsocketInstance extends InstanceBase {
@@ -15,14 +22,33 @@ class WebsocketInstance extends InstanceBase {
 		this.initWebSocket()
 		this.isInitialized = true
 
+		// api v1.0.0
 		this.isMuted = false;
 		this.inMeeting = false;
 		this.isCameraOn = false;
 		this.isHandRaised = false;
 		this.isBackgroundBlurred = false;
 
+		// Additional for api v2.0.0
+		this.isVideoOn = false;
+		this.isInMeeting = false;
+		this.isRecordingOn = false;
+		this.isSharing = false;
+		this.hasUnreadMessages = false;
+		this.canToggleMute = false;
+		this.canToggleVideo = false;
+		this.canToggleHand = false;
+		this.canToggleBlur = false;
+		this.canLeave = false;
+		this.canReact = false;
+		this.canToggleShareTray = false;
+		this.canToggleChat = false;
+		this.canStopSharing = false;
+		this.canPair = false;
+
 		this.initActions()
 		this.initFeedbacks()
+		this.initPresets()
 	}
 
 	async destroy() {
@@ -39,6 +65,8 @@ class WebsocketInstance extends InstanceBase {
 
 	async configUpdated(config) {
 		this.config = config
+		this.initActions()
+		this.initFeedbacks()
 		this.initWebSocket()
 	}
 
@@ -54,58 +82,20 @@ class WebsocketInstance extends InstanceBase {
 	}
 
 	initWebSocket() {
-		if (this.reconnect_timer) {
-			clearTimeout(this.reconnect_timer)
-			this.reconnect_timer = null
-		}
-
-		const url = "ws://" + this.config.targetIp + ":8124?token=" + this.config.apiToken + "&protocol-version=1.0.0&manufacturer=MuteDeck&device=MuteDeck&app=MuteDeck&app-version=1.4"
-		if (!url || !this.config.apiToken || !this.config.targetIp) {
-			this.updateStatus(InstanceStatus.BadConfig, `API token is missing`)
-			return
-		}
-
-		this.updateStatus(InstanceStatus.Connecting)
-
-		if (this.ws) {
-			this.ws.close(1000)
-			delete this.ws
-		}
-		this.ws = new WebSocket(url)
-
-		this.ws.on('open', () => {
-			this.updateStatus(InstanceStatus.Ok);
-			this.ws.send('{"apiVersion":"1.0.0","service":"query-meeting-state","action":"query-meeting-state","manufacturer":"Elgato","device":"StreamDeck","timestamp":1675341655453}');
-		})
-		this.ws.on('close', (code) => {
-			if (code == 1006) {
-				this.updateStatus(InstanceStatus.Disconnected, `Invalid API token or Teams not running`)
-			}
-			else {
-				this.updateStatus(InstanceStatus.Disconnected, `Connection closed with code ${code}`)
-			}
-			this.maybeReconnect()
-		})
-
-		this.ws.on('message', this.messageReceivedFromWebSocket.bind(this))
-
-		this.ws.on('error', (data) => {
-			if (data == "Error: Unexpected server response: 403") {
-				this.updateStatus(InstanceStatus.Disconnected, 'Invalid API token or Teams not running')
-			}
-			else {
-				this.log('error', `WebSocket error: ${data}`)
-			}
-		})
+		if (this.config.apiVersion === '1.0.0') {
+			initWebSocketHandleV1(this);
+		} else if (this.config.apiVersion === '2.0.0') {
+			initWebSocketHandleV2(this);
+		} 
 	}
 
 
 	parseTeamsStatus(data) {
-		this.inMeeting = data.meetingUpdate.meetingState.isInMeeting;
-		this.isMuted = data.meetingUpdate.meetingState.isMuted;
-		this.isCameraOn = data.meetingUpdate.meetingState.isCameraOn;
-		this.isHandRaised = data.meetingUpdate.meetingState.isHandRaised;
-		this.isBackgroundBlurred = data.meetingUpdate.meetingState.isBackgroundBlurred;
+		if (this.config.apiVersion === '1.0.0') {
+			parseStatusV1(this, data);
+		} else if (this.config.apiVersion === '2.0.0') {
+			parseStatusV2(this, data);
+		} 
 		this.checkFeedbacks();
 	}
 
@@ -115,6 +105,11 @@ class WebsocketInstance extends InstanceBase {
 			msgValue = JSON.parse(data)
 		} catch (e) {
 			msgValue = data
+		}
+		if (msgValue.tokenRefresh != null) {
+			this.config.apiToken = msgValue.tokenRefresh;
+			this.saveConfig(this.config)
+			this.configUpdated(this.config)
 		}
 		if (msgValue.meetingUpdate != null) {
 			this.parseTeamsStatus(msgValue);
@@ -126,12 +121,26 @@ class WebsocketInstance extends InstanceBase {
 	}
 
 	initFeedbacks() {
-		setupFeedbacks(this);
+		if (this.config.apiVersion === '1.0.0') {
+			setupFeedbacksV1(this);
+		} else if (this.config.apiVersion === '2.0.0') {
+			setupFeedbacksV2(this);
+		}
 	}
 
 	initActions() {
-		setupActions(this);
+		if (this.config.apiVersion === '1.0.0') {
+			setupActionsV1(this);
+		} else if (this.config.apiVersion === '2.0.0') {
+			setupActionsV2(this);
+		}
+	}
+
+	initPresets() {
+		if (this.config.apiVersion === '2.0.0') {
+			this.setPresetDefinitions(getPresetDefinitions(this))
+		}
 	}
 }
 
-runEntrypoint(WebsocketInstance, upgradeScripts)
+runEntrypoint(WebsocketInstance, upgradeScripts);

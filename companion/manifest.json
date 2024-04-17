@@ -3,7 +3,7 @@
 	"name": "microsoft-teams",
 	"shortname": "teams",
 	"description": "Module for controlling the Microsoft Teams desktop application",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-microsoft-teams.git",
 	"bugs": "https://github.com/bitfocus/companion-module-microsoft-teams/issues",
@@ -11,6 +11,10 @@
 		{
 			"name": "Leon Reucher",
 			"email": "leon.reucher@ultimate-technology.de"
+		},
+		{
+			"name": "Shaun Padt",
+			"email": "sfpadt@gmail.com"
 		}
 	],
 	"legacyIds": [],
