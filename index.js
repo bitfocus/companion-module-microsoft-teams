@@ -1,51 +1,57 @@
 import { InstanceBase, runEntrypoint } from '@companion-module/base'
 import { upgradeScripts } from './upgrade.js'
-import { setupActions as setupActionsV1 } from './api/v1.0.0/actions.js'
-import { setupActions as setupActionsV2 } from './api/v2.0.0/actions.js'
-import { setupFeedbacks as setupFeedbacksV1 } from './api/v1.0.0/feedbacks.js'
-import { setupFeedbacks as setupFeedbacksV2 } from './api/v2.0.0/feedbacks.js'
-import { parseStatus as parseStatusV1 } from './api/v1.0.0/messages.js'
-import { parseStatus as parseStatusV2 } from './api/v2.0.0/messages.js'
-import { initWebSocketHandle as initWebSocketHandleV1 } from './api/v1.0.0/messages.js'
-import { initWebSocketHandle as initWebSocketHandleV2 } from './api/v2.0.0/messages.js'
 import { configFields } from './config.js'
 import { getPresetDefinitions } from './presets.js'
-
-
 
 class WebsocketInstance extends InstanceBase {
 	isInitialized = false
 
-	async init(config) {
-		this.config = config
+	// let's actually handle the API a little more nicely...
+	// import API modules dynamically
+	async loadApiVersionModules(apiVersion) {
+		if (apiVersion === '1.0.0') {
+			const actions = await import('./api/v1.0.0/actions.js');
+			const feedbacks = await import('./api/v1.0.0/feedbacks.js');
+			const messages = await import('./api/v1.0.0/messages.js');
+			const variables = await import('./api/v1.0.0/variables.js');
+			return {
+				setupActions: actions.setupActions,
+				setupFeedbacks: feedbacks.setupFeedbacks,
+				parseStatus: messages.parseStatus,
+				initWebSocketHandle: messages.initWebSocketHandle,
+				setupVariables: variables.setupVariables,
+				updateVariables: variables.updateVariables,
+			};
+		} else if (apiVersion === '2.0.0') {
+			const actions = await import('./api/v2.0.0/actions.js');
+			const feedbacks = await import('./api/v2.0.0/feedbacks.js');
+			const messages = await import('./api/v2.0.0/messages.js');
+			const variables = await import('./api/v2.0.0/variables.js');
+			return {
+				setupActions: actions.setupActions,
+				setupFeedbacks: feedbacks.setupFeedbacks,
+				parseStatus: messages.parseStatus,
+				initWebSocketHandle: messages.initWebSocketHandle,
+				setupVariables: variables.setupVariables,
+				updateVariables: variables.updateVariables,
+			};
+		}
+		throw new Error(`Unsupported API version: ${apiVersion}`);
+	} catch (err) {
+		this.log(`Error loading API version modules: ${err.message}`);
+		throw err;
+	}
 
-		this.initWebSocket()
+
+	async init(config) {
+		this.config = config;
 		this.isInitialized = true
 
-		// api v1.0.0
-		this.isMuted = false;
-		this.inMeeting = false;
-		this.isCameraOn = false;
-		this.isHandRaised = false;
-		this.isBackgroundBlurred = false;
+		this.apiModules = await this.loadApiVersionModules(this.config.apiVersion);
+		this.apiModules.setupVariables(this);
 
-		// Additional for api v2.0.0
-		this.isVideoOn = false;
-		this.isInMeeting = false;
-		this.isRecordingOn = false;
-		this.isSharing = false;
-		this.hasUnreadMessages = false;
-		this.canToggleMute = false;
-		this.canToggleVideo = false;
-		this.canToggleHand = false;
-		this.canToggleBlur = false;
-		this.canLeave = false;
-		this.canReact = false;
-		this.canToggleShareTray = false;
-		this.canToggleChat = false;
-		this.canStopSharing = false;
-		this.canPair = false;
-
+		this.initWebSocket();
+		
 		this.initActions()
 		this.initFeedbacks()
 		this.initPresets()
@@ -65,6 +71,7 @@ class WebsocketInstance extends InstanceBase {
 
 	async configUpdated(config) {
 		this.config = config
+		this.apiModules = await this.loadApiVersionModules(this.config.apiVersion);
 		this.initActions()
 		this.initFeedbacks()
 		this.initWebSocket()
@@ -82,30 +89,24 @@ class WebsocketInstance extends InstanceBase {
 	}
 
 	initWebSocket() {
-		if (this.config.apiVersion === '1.0.0') {
-			initWebSocketHandleV1(this);
-		} else if (this.config.apiVersion === '2.0.0') {
-			initWebSocketHandleV2(this);
-		} 
+		this.apiModules.initWebSocketHandle(this);
 	}
 
-
 	parseTeamsStatus(data) {
-		if (this.config.apiVersion === '1.0.0') {
-			parseStatusV1(this, data);
-		} else if (this.config.apiVersion === '2.0.0') {
-			parseStatusV2(this, data);
-		} 
+		this.apiModules.parseStatus(this, data);
+		this.apiModules.updateVariables(this);
 		this.checkFeedbacks();
 	}
 
 	messageReceivedFromWebSocket(data) {
+		this.log('debug', "Received data from websock");
 		let msgValue = null
 		try {
 			msgValue = JSON.parse(data)
 		} catch (e) {
 			msgValue = data
 		}
+		this.log('debug', JSON.stringify(msgValue));
 		if (msgValue.tokenRefresh != null) {
 			this.config.apiToken = msgValue.tokenRefresh;
 			this.saveConfig(this.config)
@@ -121,21 +122,16 @@ class WebsocketInstance extends InstanceBase {
 	}
 
 	initFeedbacks() {
-		if (this.config.apiVersion === '1.0.0') {
-			setupFeedbacksV1(this);
-		} else if (this.config.apiVersion === '2.0.0') {
-			setupFeedbacksV2(this);
-		}
+		this.apiModules.setupFeedbacks(this);
 	}
 
 	initActions() {
-		if (this.config.apiVersion === '1.0.0') {
-			setupActionsV1(this);
-		} else if (this.config.apiVersion === '2.0.0') {
-			setupActionsV2(this);
-		}
+		this.apiModules.setupActions(this);
 	}
 
+	initVariables() {
+		this.apiModules.setupActions(this);
+	}
 	initPresets() {
 		if (this.config.apiVersion === '2.0.0') {
 			this.setPresetDefinitions(getPresetDefinitions(this))

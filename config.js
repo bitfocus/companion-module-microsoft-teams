@@ -13,7 +13,7 @@ export const configFields = [
         type: 'dropdown',
         label: 'API Version',
         id: 'apiVersion',
-        default: '1.0.0',
+        default: '2.0.0',
         tooltip: 'Select the version of Teams to accommodate the differently supported APIs',
         choices: [
             { id: '1.0.0', label: '1.0.0, Microsoft Teams Classic' },
