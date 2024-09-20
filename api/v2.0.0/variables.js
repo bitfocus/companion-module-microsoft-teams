@@ -1,4 +1,4 @@
-const variables = [
+export const variables = [
   { variableId: 'isMuted', name: 'Is Muted' },
   { variableId: 'isVideoOn', name: 'Is Video On' },
   { variableId: 'isHandRaised', name: 'Is Hand Raised' },
@@ -18,21 +18,3 @@ const variables = [
   { variableId: 'canStopSharing', name: 'Can Stop Sharing' },
   { variableId: 'canPair', name: 'Can Pair Devices' },
 ];
-
-export function setupVariables(instance) {
-  instance.setVariableDefinitions(variables)
-  const variableValues = {};
-  variables.forEach((variable) => {
-    instance[variable.variableId] = false;
-    variableValues[variable.variableId] = false;
-  });
-  instance.setVariableValues(variableValues);
-}
-
-export function updateVariables(instance) {
-  const variableValues = {};
-  variables.forEach((variable) => {
-    variableValues[variable.variableId] = instance[variable.variableId];
-  });
-  instance.setVariableValues(variableValues);
-}

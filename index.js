@@ -13,48 +13,37 @@ class WebsocketInstance extends InstanceBase {
 			const actions = await import('./api/v1.0.0/actions.js');
 			const feedbacks = await import('./api/v1.0.0/feedbacks.js');
 			const messages = await import('./api/v1.0.0/messages.js');
-			const variables = await import('./api/v1.0.0/variables.js');
+			const { variables } = await import('./api/v1.0.0/variables.js');
 			return {
 				setupActions: actions.setupActions,
 				setupFeedbacks: feedbacks.setupFeedbacks,
 				parseStatus: messages.parseStatus,
 				initWebSocketHandle: messages.initWebSocketHandle,
-				setupVariables: variables.setupVariables,
-				updateVariables: variables.updateVariables,
+				variables: variables,
 			};
 		} else if (apiVersion === '2.0.0') {
 			const actions = await import('./api/v2.0.0/actions.js');
 			const feedbacks = await import('./api/v2.0.0/feedbacks.js');
 			const messages = await import('./api/v2.0.0/messages.js');
-			const variables = await import('./api/v2.0.0/variables.js');
+			const { variables } = await import('./api/v2.0.0/variables.js');
 			return {
 				setupActions: actions.setupActions,
 				setupFeedbacks: feedbacks.setupFeedbacks,
 				parseStatus: messages.parseStatus,
 				initWebSocketHandle: messages.initWebSocketHandle,
-				setupVariables: variables.setupVariables,
-				updateVariables: variables.updateVariables,
+				variables: variables,
 			};
 		}
 		throw new Error(`Unsupported API version: ${apiVersion}`);
 	} catch (err) {
-		this.log(`Error loading API version modules: ${err.message}`);
+		this.log("error",`Error loading API version modules: ${err.message}`);
 		throw err;
 	}
 
 
 	async init(config) {
-		this.config = config;
-		this.isInitialized = true
-
-		this.apiModules = await this.loadApiVersionModules(this.config.apiVersion);
-		this.apiModules.setupVariables(this);
-
-		this.initWebSocket();
-		
-		this.initActions()
-		this.initFeedbacks()
-		this.initPresets()
+		this.isInitialized = true;
+		this.configUpdated(config);
 	}
 
 	async destroy() {
@@ -72,8 +61,11 @@ class WebsocketInstance extends InstanceBase {
 	async configUpdated(config) {
 		this.config = config
 		this.apiModules = await this.loadApiVersionModules(this.config.apiVersion);
+		this.log('debug', `API loaded ${this.config.apiVersion}`);
 		this.initActions()
 		this.initFeedbacks()
+		this.initVariables()
+		this.initPresets()
 		this.initWebSocket()
 	}
 
@@ -94,19 +86,19 @@ class WebsocketInstance extends InstanceBase {
 
 	parseTeamsStatus(data) {
 		this.apiModules.parseStatus(this, data);
-		this.apiModules.updateVariables(this);
+		this.updateVariables(this);
 		this.checkFeedbacks();
 	}
 
 	messageReceivedFromWebSocket(data) {
-		this.log('debug', "Received data from websock");
 		let msgValue = null
 		try {
-			msgValue = JSON.parse(data)
+			msgValue = JSON.parse(data);
+			this.log('debug', `Received websock data:\n${JSON.stringify(msgValue)}`);
 		} catch (e) {
-			msgValue = data
+			msgValue = data;
+			this.log('debug', `Received websock data:\n${msgValue}`);
 		}
-		this.log('debug', JSON.stringify(msgValue));
 		if (msgValue.tokenRefresh != null) {
 			this.config.apiToken = msgValue.tokenRefresh;
 			this.saveConfig(this.config)
@@ -130,8 +122,23 @@ class WebsocketInstance extends InstanceBase {
 	}
 
 	initVariables() {
-		this.apiModules.setupActions(this);
+		this.setVariableDefinitions(this.apiModules.variables);
+		const variableValues = {};
+		this.apiModules.variables.forEach((variable) => {
+			this[variable.variableId] = false;
+			variableValues[variable.variableId] = false;
+		});
+		this.setVariableValues(variableValues);
 	}
+
+	updateVariables() {
+		const variableValues = {};
+		this.apiModules.variables.forEach((variable) => {
+			variableValues[variable.variableId] = this[variable.variableId];
+		});
+		this.setVariableValues(variableValues);
+	}
+
 	initPresets() {
 		if (this.config.apiVersion === '2.0.0') {
 			this.setPresetDefinitions(getPresetDefinitions(this))
