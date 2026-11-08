@@ -9,7 +9,7 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@companion-module/base": "~1.5.0",
+		"@companion-module/base": "~1.15.1",
 		"object-path": "^0.11.8",
 		"ws": "^7.5.11"
 	},
@@ -18,7 +18,11 @@
 		"url": "git+https://github.com/bitfocus/companion-module-microsoft-teams.git"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^2.8.0"
+		"@companion-module/tools": "~2.9.0"
 	},
-	"prettier": "@companion-module/tools/.prettierrc.json"
+	"prettier": "@companion-module/tools/.prettierrc.json",
+	"packageManager": "yarn@1.22.22",
+	"engines": {
+		"node": ">=26"
+	}
 }
